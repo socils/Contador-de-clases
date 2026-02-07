@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Cuenta regresiva final</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+
+<style>
+  body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background 1s, color 1s;
+    text-align: center;
+  }
+
+  body.dark {
+    background: radial-gradient(circle at top, #0f0f2d, #000);
+    color: #fff;
+  }
+
+  body.light {
+    background: linear-gradient(135deg, #fdfbfb, #ebedee);
+    color: #222;
+  }
+
+  .card {
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(12px);
+    padding: 40px;
+    border-radius: 22px;
+    box-shadow: 0 0 40px rgba(0,0,0,0.4);
+    max-width: 420px;
+    width: 90%;
+  }
+
+  h1 {
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .countdown {
+    font-size: 2.4rem;
+    margin: 25px 0;
+    letter-spacing: 1px;
+  }
+
+  .message {
+    font-weight: 300;
+    font-size: 1.05rem;
+    min-height: 1.5em;
+  }
+
+  .warning {
+    margin-top: 15px;
+    font-size: 0.85rem;
+    opacity: 0.7;
+  }
+
+  canvas {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+  }
+</style>
+</head>
+
+<body>
+<canvas id="confetti"></canvas>
+
+<div class="card">
+  <h1>📚 Inicio de clases</h1>
+  <div class="countdown" id="countdown">Cargando...</div>
+  <div class="message" id="message"></div>
+  <div class="warning" id="warning"></div>
+</div>
+
+<audio id="alarm">
+  <source src="https://assets.mixkit.co/sfx/preview/mixkit-failure-arcade-alert-notification-240.mp3">
+</audio>
+
+<script>
+/* 🌗 Modo claro / oscuro automático */
+const hour = new Date().getHours();
+document.body.className = (hour >= 7 && hour < 19) ? "light" : "dark";
+
+/* ⏳ Cuenta regresiva */
+let finalizado = false;
+
+function actualizarCuenta() {
+  const ahora = new Date();
+  const finDeMes = new Date(
+    ahora.getFullYear(),
+    ahora.getMonth() + 1,
+    0,
+    23, 59, 59
+  );
+
+  const diff = finDeMes - ahora;
+
+  const countdown = document.getElementById("countdown");
+  const message = document.getElementById("message");
+  const warning = document.getElementById("warning");
+
+  if (diff <= 0 && !finalizado) {
+    finalizado = true;
+    countdown.textContent = "00d 00h 00m 00s";
+    message.textContent = "📚 Se acabó la paz. Mucha suerte.";
+    warning.textContent = "Que Dios se apiade de ti.";
+    document.getElementById("alarm").play();
+    lanzarConfeti();
+    return;
+  }
+
+  if (diff <= 0) return;
+
+  const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+  const m = Math.floor((diff / (1000 * 60)) % 60);
+  const s = Math.floor((diff / 1000) % 60);
+
+  countdown.textContent = `${d}d ${h}h ${m}m ${s}s`;
+
+  if (d > 20) message.textContent = "😌 Todo está bien… por ahora";
+  else if (d > 14) message.textContent = "🙂 Disfruta mientras puedas";
+  else if (d > 7) message.textContent = "😐 Ya se empieza a sentir";
+  else if (d > 3) message.textContent = "😰 Esto ya no es un simulacro";
+  else if (d > 1) message.textContent = "😭 El final se acerca";
+  else message.textContent = "💀 Hoy es el último día de libertad";
+
+  warning.textContent = (d <= 3) ? "⚠ Estrés crítico detectado" : "";
+}
+
+setInterval(actualizarCuenta, 1000);
+actualizarCuenta();
+
+/* 🎉 Confeti final */
+function lanzarConfeti() {
+  const canvas = document.getElementById("confetti");
+  const ctx = canvas.getContext("2d");
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const pieces = Array.from({length: 200}, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    r: Math.random() * 6 + 4,
+    dx: Math.random() * 4 - 2,
+    dy: Math.random() * 6 + 2
+  }));
+
+  function draw() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    pieces.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+      ctx.fill();
+      p.x += p.dx;
+      p.y += p.dy;
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
+</script>
+
+</body>
+</html>
