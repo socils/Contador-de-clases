@@ -136,14 +136,10 @@ let lastDays = null;
 
 function actualizar() {
   const ahora = new Date();
-  const finDeMes = new Date(
-    ahora.getFullYear(),
-    ahora.getMonth() + 1,
-    0,
-    23, 59, 59
-  );
+ const fechaInicio = new Date(2026, 2, 16, 8, 0, 0);
+const diff = fechaInicio - ahora;
 
-  const diff = finDeMes - ahora;
+ 
 
   const dias = Math.max(0, Math.floor(diff / (1000 * 60 * 60 * 24)));
   const horas = Math.floor((diff / (1000 * 60 * 60)) % 24);
